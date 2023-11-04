@@ -266,6 +266,9 @@ Item {
                                             drawVertical(mapToItem(spectrumChart, mouse.x, mouse.y).x, isSelected)
                                         }
 
+                                        //horizontalCrosshair.visible = true
+                                        //verticalCrosshair.visible = true
+
                                     }
 
                         onPressed: (mouse)=> {
@@ -294,6 +297,8 @@ Item {
                                                    endY = mapToItem(spectrumChart, mouse.x, mouse.y).y;
                                                    updateRectangle(startX, startY, endX - startX, endY - startY, true);
                                                    linemarker.visible = false
+                                                   //horizontalCrosshair.visible = false
+                                                   //verticalCrosshair.visible = false
                                                }
 
                                                else if(isMove == true){
@@ -363,8 +368,8 @@ Item {
                         //width: spectrumChart.plotArea.width
                         //anchors.horizontalCenter: parent.horizontalCenter
                         anchors.bottom: parent.bottom
-                        anchors.rightMargin: 20
-                        anchors.leftMargin: 20
+                        anchors.rightMargin: 40
+                        anchors.leftMargin: 40
                         anchors.bottomMargin: 5
                         from: 0
                         to: 2048
@@ -436,7 +441,7 @@ Item {
     //        running: true
     //        repeat: true
     //        onTriggered: {
-    //            spectrumSourceContext.update(spectrumChart.series(0));
+    //            ssContext.update(spectrumChart.series(0));
     //        }
     //    }
 
