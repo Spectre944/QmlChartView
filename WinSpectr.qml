@@ -9,15 +9,27 @@ Item {
     width: 1200
     height: 500
 
+    property real leftBoundry:  0
+    property real rightBoundry: 2048
+
     function updateSpectrum(path){
         //updating chart and adjust size in c++
         ssContext.updateFromFile(spectrumChart.series(0), path)
         //ssContext.updateFromFile(spectrumChart.series(1), path)
+        adjustSize(leftBoundry, rightBoundry)
     }
 
     function clearChart(){
         spectrumSeries.clear()
         gausSeries.clear()
+    }
+
+    function adjustSize(left, right){
+
+        valueAxisX.min = left;
+        valueAxisX.max = right;
+        leftBoundry = left
+        rightBoundry = right
     }
 
     Rectangle {
@@ -342,6 +354,27 @@ Item {
                             linemarker.x = mouseX - linemarker.width/2
                         }
                     }
+
+                    RangeSlider {
+                        id: rangeSlider
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        //x: spectrumChart.plotArea.left
+                        //width: spectrumChart.plotArea.width
+                        //anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                        anchors.rightMargin: 20
+                        anchors.leftMargin: 20
+                        anchors.bottomMargin: 5
+                        from: 0
+                        to: 2048
+
+                        second.value: 2048
+                        first.value: 0
+
+                        first.onMoved: adjustSize(first.value, second.value)
+                        second.onMoved: adjustSize(first.value, second.value)
+                    }
                 }
 
             }
@@ -397,21 +430,21 @@ Item {
         }
     }
 
-//    Timer {
-//        id: refreshTimer
-//        interval: 2 // 60 Hz
-//        running: true
-//        repeat: true
-//        onTriggered: {
-//            spectrumSourceContext.update(spectrumChart.series(0));
-//        }
-//    }
+    //    Timer {
+    //        id: refreshTimer
+    //        interval: 2 // 60 Hz
+    //        running: true
+    //        repeat: true
+    //        onTriggered: {
+    //            spectrumSourceContext.update(spectrumChart.series(0));
+    //        }
+    //    }
 
 
 }
 
 /*##^##
 Designer {
-    D{i:0;formeditorZoom:0.66}
+    D{i:0;formeditorZoom:0.66}D{i:23}
 }
 ##^##*/
