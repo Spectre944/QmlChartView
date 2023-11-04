@@ -30,7 +30,8 @@ ApplicationWindow {
         onAccepted: {
             var filePath = fileDialog.selectedFile.toString().replace("file:///",'')
             console.log("You chose: " + filePath)
-            fmContext.loadCSVFile(filePath)
+            //fileSelected(filePath)
+            winSpectr.updateSpectrum(filePath)
         }
         onRejected: {
             console.log("Canceled")
@@ -38,6 +39,7 @@ ApplicationWindow {
     }
 
     WinSpectr {
+        id: winSpectr
         anchors.fill: parent
     }
 }

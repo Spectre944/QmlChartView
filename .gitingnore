@@ -60,3 +60,4 @@ assets/icons
 *.svg
 
 *.pro.user.*
+*.pro.user

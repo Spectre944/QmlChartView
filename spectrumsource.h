@@ -7,6 +7,9 @@
 #include <QRandomGenerator>
 #include <QtMath>
 #include <QXYSeries>
+#include <QValueAxis>
+
+#include "filemanager.h"
 
 Q_DECLARE_METATYPE(QAbstractSeries *)
 Q_DECLARE_METATYPE(QAbstractAxis *)
@@ -15,24 +18,32 @@ class SpectrumSource : public QObject
 {
     Q_OBJECT
 public:
-    explicit SpectrumSource(QQuickView *appViewer, QObject *parent = nullptr);
+
+    explicit SpectrumSource(QObject *parent = nullptr);
+
 
 public slots:
     void generateData(int type, int rowCount, int colCount);
     void update(QAbstractSeries *series);
 
+    void updateFromFile(QAbstractSeries *series, const QString &path);
+
 private:
+    FileManager fm;
+
+
     QQuickView *m_appViewer = nullptr;
     QList<QList<QPointF>> m_data;
     int m_index = -1;
 };
 
-inline SpectrumSource::SpectrumSource(QQuickView *appViewer, QObject *parent)
+
+inline SpectrumSource::SpectrumSource(QObject *parent)
 {
     qRegisterMetaType<QAbstractSeries*>();
     qRegisterMetaType<QAbstractAxis*>();
 
-    //generateData(0, 5, 1024);
+    //generateData(0, 1, 1024);
 }
 
 inline void SpectrumSource::generateData(int type, int rowCount, int colCount)
@@ -81,5 +92,43 @@ inline void SpectrumSource::update(QAbstractSeries *series)
         xySeries->replace(points);
     }
 }
+
+inline void SpectrumSource::updateFromFile(QAbstractSeries *series, const QString &path)
+{
+    if (series) {
+        auto xySeries = static_cast<QXYSeries *>(series);
+
+        QList<QPointF> points = fm.loadSpectrum(path);
+        xySeries->replace(points);
+
+        // adjust axis
+        auto axes = xySeries->attachedAxes();
+
+        for (QAbstractAxis* axis : axes) {
+            if (qobject_cast<QValueAxis*>(axis)) {
+                QValueAxis* valueAxis = qobject_cast<QValueAxis*>(axis);
+
+                if (valueAxis) {
+                    if (valueAxis->orientation() == Qt::Horizontal) {
+                        valueAxis->setMin(0);
+                        valueAxis->setMax(points.size() - 1);
+                    } else if (valueAxis->orientation() == Qt::Vertical) {
+                        double maxSpectrumValue = 0;
+                        for (const auto& point : points) {
+                            if (point.y() > maxSpectrumValue) {
+                                maxSpectrumValue = point.y();
+                            }
+                        }
+
+                        valueAxis->setMin(0);
+                        valueAxis->setMax(maxSpectrumValue * 1.1); // Увеличьте максимальное значение оси Y на 10% (может потребоваться настройка)
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 #endif // SPECTRUMSOURCE_H

@@ -9,27 +9,14 @@ Item {
     width: 1200
     height: 500
 
-    Connections {
-        target: fmContext
+    function updateSpectrum(path){
+        //updating chart and adjust size in c++
+        ssContext.updateFromFile(spectrumChart.series(0), path)
+    }
 
-        function onGetSpectrum(spectrum) {
-            // Clear the existing series data
-            spectrumSeries.clear();
-
-            // Add the updated spectrum data to the series
-            //for (var i = 0; i < spectrum.length; i++) {
-            for (var i = 0; i < 2048; i++) {
-                var dataPoint = spectrum[i];
-                spectrumSeries.append(i, dataPoint);
-            }
-
-            // Update the axis range based on the new data
-            valueAxisX.min = 0;
-            valueAxisX.max = spectrum.length - 1;
-
-            valueAxisY.min = 0;
-            valueAxisY.max = Math.max(...spectrum);
-        }
+    function clearChart(){
+        spectrumSeries.clear()
+        gausSeries.clear()
     }
 
     Rectangle {
@@ -39,8 +26,7 @@ Item {
         color: "#fafafa"
         radius: 10
         anchors.fill: parent
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
+        anchors.margins: 10
         layer.enabled: true
         layer.effect: DropShadow {
             color: "#a0676767"
@@ -65,8 +51,6 @@ Item {
                 anchors.top: rectangleTop.bottom
                 anchors.bottom: parent.bottom
                 anchors.topMargin: 0
-
-
 
                 ChartView {
                     id: spectrumChart
@@ -103,7 +87,7 @@ Item {
                     TextEdit {
                         id: textEditSpectrumInfo
                         textFormat: Text.RichText
-                        text: '<p> 0000 сек  </p>' +
+                        text: '<p> 000 сек  </p>' +
                               '<p> 0000 (0000) cps  </p>' +
                               '<p> 00.00 мкЗв/год  </p>' +
                               '<p> 00.00 °C  </p>'
@@ -231,7 +215,6 @@ Item {
                             hcText.text = Math.floor(plotPos.y); // Replace with your actual calculation
                         }
                     }
-
 
                     MouseArea {
                         id: zoomMouseArea
@@ -408,11 +391,22 @@ Item {
                     font.bold: false
                     font.family: "Arial"
                     anchors.rightMargin: 10
+                    onClicked: clearChart()
                 }
             }
 
         }
     }
+
+//    Timer {
+//        id: refreshTimer
+//        interval: 2 // 60 Hz
+//        running: true
+//        repeat: true
+//        onTriggered: {
+//            spectrumSourceContext.update(spectrumChart.series(0));
+//        }
+//    }
 
 
 }
