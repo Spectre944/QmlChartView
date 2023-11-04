@@ -12,6 +12,7 @@ Item {
     function updateSpectrum(path){
         //updating chart and adjust size in c++
         ssContext.updateFromFile(spectrumChart.series(0), path)
+        //ssContext.updateFromFile(spectrumChart.series(1), path)
     }
 
     function clearChart(){
@@ -57,7 +58,7 @@ Item {
                     anchors.fill: parent
                     backgroundColor: "#00000000"
                     anchors.margins: 0
-                    antialiasing: true
+                    antialiasing: false
                     legend.visible: false
 
                     ValueAxis {
@@ -72,14 +73,12 @@ Item {
 
                     LineSeries {
                         id: spectrumSeries
-                        name: "Spectrum"
                         axisX: valueAxisX
                         axisY: valueAxisY
                     }
 
                     LineSeries {
                         id: gausSeries
-                        name: "Spectrum"
                         axisX: valueAxisX
                         axisY: valueAxisY
                     }

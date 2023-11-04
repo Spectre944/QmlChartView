@@ -7,6 +7,7 @@
 #include <QRandomGenerator>
 #include <QtMath>
 #include <QXYSeries>
+#include <QAreaSeries>
 #include <QValueAxis>
 
 #include "filemanager.h"
@@ -95,14 +96,27 @@ inline void SpectrumSource::update(QAbstractSeries *series)
 
 inline void SpectrumSource::updateFromFile(QAbstractSeries *series, const QString &path)
 {
+
+    /*  Function can work with LineSeries and AreaSeries updating data and adjust axis  */
+
     if (series) {
-        auto xySeries = static_cast<QXYSeries *>(series);
+
+        QXYSeries* lineSeries = dynamic_cast<QXYSeries *>(series);
+        QAreaSeries* areaSeries = dynamic_cast<QAreaSeries*>(series);
+
+        QList<QAbstractAxis*> axes;
 
         QList<QPointF> points = fm.loadSpectrum(path);
-        xySeries->replace(points);
 
-        // adjust axis
-        auto axes = xySeries->attachedAxes();
+        if (lineSeries) {
+            lineSeries->replace(points);
+            axes = lineSeries->attachedAxes();
+        } else if (areaSeries) {
+            QLineSeries* newLineSeries = new QLineSeries();
+            newLineSeries->replace(points);
+            areaSeries->setUpperSeries(newLineSeries);
+            axes = areaSeries->attachedAxes();
+        }
 
         for (QAbstractAxis* axis : axes) {
             if (qobject_cast<QValueAxis*>(axis)) {
@@ -114,20 +128,21 @@ inline void SpectrumSource::updateFromFile(QAbstractSeries *series, const QStrin
                         valueAxis->setMax(points.size() - 1);
                     } else if (valueAxis->orientation() == Qt::Vertical) {
                         double maxSpectrumValue = 0;
-                        for (const auto& point : points) {
+                        for (const QPointF& point : points) {
                             if (point.y() > maxSpectrumValue) {
                                 maxSpectrumValue = point.y();
                             }
                         }
 
                         valueAxis->setMin(0);
-                        valueAxis->setMax(maxSpectrumValue * 1.1); // Увеличьте максимальное значение оси Y на 10% (может потребоваться настройка)
+                        valueAxis->setMax(maxSpectrumValue * 1.1);
                     }
                 }
             }
         }
     }
 }
+
 
 
 
